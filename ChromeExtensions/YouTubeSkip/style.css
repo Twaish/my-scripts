@@ -1,0 +1,49 @@
+:root {
+	--white: #eee;
+	--black: #0e100f;
+	--blue: rgb(8, 121, 252);
+}
+
+.ytskip-container,
+.ytskip-container *:not(:where(svg, path)) {
+	all: unset;
+}
+
+.ytskip-container {
+	display: flex;
+	align-items: center;
+	position: fixed;
+	bottom: 0;
+	left: 50%;
+	translate: -50% 0;
+	gap: .5rem;
+	padding: .1rem;
+	background-color: var(--black);
+	border: 1px solid var(--blue);
+	border-bottom: 0;
+	height: min-content;
+}
+.ytskip-container * {
+	font-family: 'Courier New', Courier, monospace;
+}
+.ytskip-icon {
+	color: var(--white);
+	position: relative;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 16px;
+	padding: .35rem;
+	aspect-ratio: 1;
+	transition: all .1s ease-in-out;
+}
+.ytskip-icon:hover {
+	color: var(--blue);
+}
+.ytskip-icon svg {
+	height: 100%;
+}
+.ytskip-icon path {
+	stroke-width: 50;
+}

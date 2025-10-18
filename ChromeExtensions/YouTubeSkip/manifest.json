@@ -1,0 +1,12 @@
+{
+	"name": "YouTube Skip",
+	"version": "1.0.0",
+	"manifest_version": 3,
+	"permissions": [ "scripting" ],
+	"content_scripts": [{
+		"matches": [ "*://www.youtube.com/*" ],
+		"run_at": "document_end",
+		"js": ["main.js"],
+		"css": ["style.css"]
+	}]
+}
