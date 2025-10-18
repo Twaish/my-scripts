@@ -1,12 +1,14 @@
 {
-	"name": "YouTube Skip",
-	"version": "1.0.0",
-	"manifest_version": 3,
-	"permissions": [ "scripting" ],
-	"content_scripts": [{
-		"matches": [ "*://www.youtube.com/*" ],
-		"run_at": "document_end",
-		"js": ["main.js"],
-		"css": ["style.css"]
-	}]
+  "name": "YouTube Skip",
+  "version": "1.0.0",
+  "manifest_version": 3,
+  "permissions": ["scripting", "activeTab"],
+  "content_scripts": [
+    {
+      "matches": ["*://www.youtube.com/*"],
+      "js": ["html.js", "icons.js", "lib.js", "main.js"],
+      "css": ["style.css"],
+      "run_at": "document_end"
+    }
+  ]
 }
