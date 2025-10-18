@@ -1,36 +1,43 @@
 {
-	"name": "Highlight",
-	"version": "1.0.0",
-	"manifest_version": 3,
-	"permissions": [ "scripting" ],
-	"content_scripts": [{
-		"matches": [ "<all_urls>" ],
-		"run_at": "document_idle",
-		"js": [
-			"highlight.js", 
-			"languages/json.min.js",
-			"languages/javascript.min.js",
-			"languages/css.min.js",
-			"languages/java.min.js",
-			"languages/markdown.min.js",
-			"languages/python.min.js",
-			"languages/sql.min.js",
-			"languages/typescript.min.js",
-			"languages/c.min.js",
-			"languages/cpp.min.js",
-			/*"languages/csharp.min.js",*/
-			"languages/go.min.js",
-			"languages/ini.min.js",
-			"languages/lua.min.js",
-			"languages/php.min.js",
-			"languages/r.min.js",
-			"languages/ruby.min.js",
-			"languages/shell.min.js",
-			"languages/xml.min.js",
-			"languages/yaml.min.js",
+  "name": "Highlight - syntax highlight file contents",
+  "description": "Syntax highlight tabbed file contents",
+  "version": "1.0.0",
+  "manifest_version": 3,
+  "permissions": [ "scripting" ],
+  "content_scripts": [{
+    "matches": [ "<all_urls>" ],
+    "run_at": "document_idle",
+    "js": [
+      "highlight.js", 
+      "languages/json.min.js",
+      "languages/javascript.min.js",
+      "languages/css.min.js",
+      "languages/java.min.js",
+      "languages/markdown.min.js",
+      "languages/python.min.js",
+      "languages/sql.min.js",
+      "languages/typescript.min.js",
+      "languages/c.min.js",
+      "languages/cpp.min.js",
+      /*"languages/csharp.min.js",*/
+      "languages/go.min.js",
+      "languages/ini.min.js",
+      "languages/lua.min.js",
+      "languages/php.min.js",
+      "languages/r.min.js",
+      "languages/ruby.min.js",
+      "languages/shell.min.js",
+      "languages/xml.min.js",
+      "languages/yaml.min.js",
 
-			"main.js"
-		],
-		"css": [ "theme.css" ]
-	}]
+      "main.js"
+    ],
+    "css": [ "theme.css" ]
+  }],
+  "icons": {
+    "16": "assets/icon_16x16.png",
+    "32": "assets/icon_32x32.png",
+    "48": "assets/icon_48x48.png",
+    "128": "assets/icon_128x128.png"
+  }
 }
