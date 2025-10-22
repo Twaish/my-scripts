@@ -30,7 +30,7 @@ function detectIndent(text) {
 	return indentSize || 2;
 }
 
-if (element && hasText && bodyIsEmpty && hasNoChildren) {
+if (element && hasText && hasNoChildren) {
 	// body:has(> :only-child):has(> pre > code) { tab-size: 4; }
 	document.body.style.tabSize = 2
 	document.body.style.fontSize = "1rem"
