@@ -106,3 +106,81 @@ class SkipManager {
     this.clickSkipButton()
   }
 }
+
+class DragManager {
+  constructor() {
+    this.dragged = false
+    this.offset = { x: 0, y: 0 }
+    this.rect = {}
+    this.borderMargin = 20
+
+    document.addEventListener('mousemove', this.onMouseMove)
+    document.addEventListener('mouseup', this.onMouseUp)
+  }
+
+  attach(gripElement, containerElement) {
+    if (!gripElement || !containerElement) {
+      throw new Error('Missing grip or container element to attach')
+    }
+
+    gripElement.addEventListener('mousedown', (e) => {
+      e.preventDefault()
+      this.dragged = containerElement
+
+      const rect = containerElement.getBoundingClientRect()
+      this.rect = rect
+      this.offset.x = e.clientX - rect.left
+      this.offset.y = e.clientY - rect.top
+    })
+
+    const rect = this.getRenderedRect(containerElement)
+    const position = this.ensurePositionWithinWindow(rect)
+    this.setPosition(containerElement, position)
+  }
+
+  getRenderedRect(element) {
+    const clone = element.cloneNode(true)
+    document.body.append(clone)
+    const rect = clone.getBoundingClientRect()
+    clone.remove()
+    return rect
+  }
+
+  setPosition(element, { x, y }) {
+    Object.assign(element.style, {
+      left: `${x}px`,
+      top: `${y}px`,
+      transition: 'none',
+    })
+  }
+
+  ensurePositionWithinWindow({ x, y, width, height }) {
+    const maxLeft = window.innerWidth - width - this.borderMargin
+    const maxTop = window.innerHeight - height - this.borderMargin
+
+    x = x < this.borderMargin ? this.borderMargin : x > maxLeft ? maxLeft : x
+    y = y < this.borderMargin ? this.borderMargin : y > maxTop ? maxTop : y
+
+    return { x, y }
+  }
+
+  onMouseMove = (e) => {
+    if (!this.dragged) return
+    e.preventDefault()
+
+    const position = this.ensurePositionWithinWindow({
+      x: e.clientX - this.offset.x,
+      y: e.clientY - this.offset.y,
+      width: this.rect.width,
+      height: this.rect.height,
+    })
+    this.setPosition(this.dragged, position)
+  }
+
+  onMouseUp = () => {
+    if (this.dragged) {
+      this.dragged.style.removeProperty('transition')
+    }
+    this.dragged = null
+  }
+}
