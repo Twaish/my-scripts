@@ -4,6 +4,7 @@ const skipProfiles = {
 }
 const hotkeyManager = new HotkeyManager()
 const skipManager = new SkipManager({ hotkeyManager, skipProfiles })
+const dragManager = new DragManager()
 
 const Button = ({ text = '', icon = '', ...args }) => {
   return html('button', {
@@ -12,8 +13,12 @@ const Button = ({ text = '', icon = '', ...args }) => {
   })
 }
 
-const Container = ({ skipManager }) => {
+const Container = ({ skipManager, dragManager }) => {
+  const grip = html('.grip', {
+    html: icons.GRIP,
+  })
   const container = html('.ytskip-container', [
+    grip,
     Button({
       text: 'FULL',
       icon: icons.SKIP,
@@ -27,6 +32,9 @@ const Container = ({ skipManager }) => {
       onclick: () => skipManager.skip('5s'),
     }),
   ])
+
+  dragManager.attach(grip, container)
+
   const offset = 250
 
   document.body.onmousemove = (e) => {
@@ -36,4 +44,4 @@ const Container = ({ skipManager }) => {
 
   return container
 }
-document.body.append(Container({ skipManager }))
+document.body.append(Container({ skipManager, dragManager }))
