@@ -22,71 +22,17 @@ const skipProfiles = {
 }
 const logManager = new LogManager()
 const hotkeyManager = new HotkeyManager()
-const skipManager = new SkipManager({ hotkeyManager, skipProfiles })
+const skipManager = new SkipManager({ skipProfiles })
+skipManager.on('attachHotkey', (profile) => {
+  logManager.log(profile.description, { lifetime: 4000 })
+})
 skipManager.on('skip', (profile) => {
   logManager.log(profile.actionText)
 })
-
-// const dragManager = new DragManager()
-
-// const Button = ({ text = '', icon = '', ...args }) => {
-//   return html('button', {
-//     ...args,
-//     html: icon + text,
-//   })
-// }
-
-// const Container = ({ skipManager, dragManager }) => {
-//   const grip = html('.grip', {
-//     html: icons.GRIP,
-//   })
-//   const container = html('.ytskip-container', [
-//     grip,
-//     Button({
-//       text: 'FULL',
-//       icon: icons.SKIP,
-//       title: `Skip full video (${skipProfiles['full'].hotkey})`,
-//       onclick: () => skipManager.skip('full'),
-//     }),
-//     Button({
-//       text: '5s',
-//       icon: icons.TIMER,
-//       title: `Skip 5 seconds (${skipProfiles['5s'].hotkey})`,
-//       onclick: () => skipManager.skip('5s'),
-//     }),
-//   ])
-
-//   dragManager.attach(grip, container)
-
-//   const offset = 250
-
-//   document.body.onmousemove = (e) => {
-//     const isWithinOffset = e.clientY > window.screen.height - offset
-//     container.classList.toggle('visible', isWithinOffset)
-//   }
-
-//   return container
-// }
-// document.body.append(Container({ skipManager, dragManager }))
+skipManager.attachProfileHotkeys(hotkeyManager)
 
 const LogsContainer = ({ hotkeyManager, logManager, skipProfiles }) => {
   const logsContainer = html('.ytskip-logs')
-
-  const log = (message, { lifetime = 2000, animationTime = 150 } = {}) => {
-    const log = html('log.in', [message])
-    logsContainer.prepend(log)
-
-    setTimeout(() => {
-      log.classList.add('out')
-      setTimeout(() => {
-        logsContainer.removeChild(log)
-      }, animationTime)
-    }, lifetime)
-  }
-
-  for (const profile of Object.values(skipProfiles)) {
-    logManager.log(profile.description, { lifetime: 4000 })
-  }
 
   function randomString(minLength = 5, maxLength = 25) {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
@@ -99,12 +45,11 @@ const LogsContainer = ({ hotkeyManager, logManager, skipProfiles }) => {
   }
 
   hotkeyManager.addHotkey('ctrl+shift+c', () => {
-    log(randomString(10, 50))
+    logManager.log(randomString(10, 50))
   })
   return logsContainer
 }
 
 const logsContainer = LogsContainer({ hotkeyManager, logManager, skipProfiles })
 document.body.append(logsContainer)
-
 logManager.setContainer(logsContainer)

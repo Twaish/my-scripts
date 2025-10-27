@@ -31,20 +31,20 @@ class HotkeyManager {
   }
 }
 class SkipManager {
-  constructor({ hotkeyManager, skipProfiles = {} }) {
-    this.hotkeyManager = hotkeyManager
+  constructor({ skipProfiles = {} }) {
     this.skipProfiles = skipProfiles
     this.buttonObserver = null
     this.observers = {}
     this.attachProfileHotkeys()
   }
-  attachProfileHotkeys() {
-    if (!this.hotkeyManager) return
+  attachProfileHotkeys(hotkeyManager) {
+    if (!hotkeyManager) return
     for (const profileName in this.skipProfiles) {
       const profile = this.skipProfiles[profileName]
       if (!profile.hotkey) continue
 
-      this.hotkeyManager.addHotkey(profile.hotkey, () => this.skip(profileName))
+      hotkeyManager.addHotkey(profile.hotkey, () => this.skip(profileName))
+      this.emit('attachHotkey', profile)
     }
   }
   on(eventName, callback) {
@@ -120,93 +120,14 @@ class SkipManager {
     this.clickSkipButton()
   }
 }
-
-class DragManager {
-  constructor() {
-    this.dragged = false
-    this.offset = { x: 0, y: 0 }
-    this.rect = {}
-    this.borderMargin = 20
-
-    document.addEventListener('mousemove', this.onMouseMove)
-    document.addEventListener('mouseup', this.onMouseUp)
-  }
-
-  attach(gripElement, containerElement) {
-    if (!gripElement || !containerElement) {
-      throw new Error('Missing grip or container element to attach')
-    }
-
-    gripElement.addEventListener('mousedown', (e) => {
-      e.preventDefault()
-      this.dragged = containerElement
-
-      const rect = containerElement.getBoundingClientRect()
-      this.rect = rect
-      this.offset.x = e.clientX - rect.left
-      this.offset.y = e.clientY - rect.top
-    })
-
-    const rect = this.getRenderedRect(containerElement)
-    const position = this.ensurePositionWithinWindow(rect)
-    this.setPosition(containerElement, position)
-  }
-
-  getRenderedRect(element) {
-    const clone = element.cloneNode(true)
-    document.body.append(clone)
-    const rect = clone.getBoundingClientRect()
-    clone.remove()
-    return rect
-  }
-
-  setPosition(element, { x, y }) {
-    Object.assign(element.style, {
-      left: `${x}px`,
-      top: `${y}px`,
-      transition: 'none',
-    })
-  }
-
-  ensurePositionWithinWindow({ x, y, width, height }) {
-    const maxLeft = window.innerWidth - width - this.borderMargin
-    const maxTop = window.innerHeight - height - this.borderMargin
-
-    x = x < this.borderMargin ? this.borderMargin : x > maxLeft ? maxLeft : x
-    y = y < this.borderMargin ? this.borderMargin : y > maxTop ? maxTop : y
-
-    return { x, y }
-  }
-
-  onMouseMove = (e) => {
-    if (!this.dragged) return
-    e.preventDefault()
-
-    const position = this.ensurePositionWithinWindow({
-      x: e.clientX - this.offset.x,
-      y: e.clientY - this.offset.y,
-      width: this.rect.width,
-      height: this.rect.height,
-    })
-    this.setPosition(this.dragged, position)
-  }
-
-  onMouseUp = () => {
-    if (this.dragged) {
-      this.dragged.style.removeProperty('transition')
-    }
-    this.dragged = null
-  }
-}
-
 class LogManager {
   queue = []
   setContainer(container) {
     this.logsContainer = container
     this.queue.forEach((msg) => {
       this.log(...msg)
-      console.log('LOGGING', msg)
     })
+    this.queue = []
   }
 
   log(message, { lifetime = 2000, animationTime = 150 } = {}) {
