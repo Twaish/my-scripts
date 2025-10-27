@@ -35,6 +35,7 @@ class SkipManager {
     this.hotkeyManager = hotkeyManager
     this.skipProfiles = skipProfiles
     this.buttonObserver = null
+    this.observers = {}
     this.attachProfileHotkeys()
   }
   attachProfileHotkeys() {
@@ -45,6 +46,18 @@ class SkipManager {
 
       this.hotkeyManager.addHotkey(profile.hotkey, () => this.skip(profileName))
     }
+  }
+  on(eventName, callback) {
+    this.observers[eventName] ??= []
+    this.observers[eventName].push(callback)
+  }
+  off(eventName, callback) {
+    if (!this.observers[eventName]) return
+    const index = this.observers[eventName].indexOf(callback)
+    this.observers[eventName].splice(index, 1)
+  }
+  emit(eventName, ...args) {
+    this.observers[eventName]?.forEach((callback) => callback(...args))
   }
   get video() {
     return document.querySelector('.video-stream.html5-main-video')
@@ -97,6 +110,7 @@ class SkipManager {
   skip(profileName) {
     const profile = this.skipProfiles[profileName]
     if (!profile) throw new Error(`Skip profile ${profileName} not found`)
+    this.emit('skip', profile)
     if (profile.duration) {
       this.setVideoDuration(profile.duration)
     }
@@ -182,5 +196,34 @@ class DragManager {
       this.dragged.style.removeProperty('transition')
     }
     this.dragged = null
+  }
+}
+
+class LogManager {
+  queue = []
+  setContainer(container) {
+    this.logsContainer = container
+    this.queue.forEach((msg) => {
+      this.log(...msg)
+      console.log('LOGGING', msg)
+    })
+  }
+
+  log(message, { lifetime = 2000, animationTime = 150 } = {}) {
+    const log = html('log.in', [message])
+
+    if (!this.logsContainer) {
+      this.queue.push([message, { lifetime, animationTime }])
+      return
+    }
+
+    this.logsContainer.prepend(log)
+
+    setTimeout(() => {
+      log.classList.add('out')
+      setTimeout(() => {
+        this.logsContainer.removeChild(log)
+      }, animationTime)
+    }, lifetime)
   }
 }
