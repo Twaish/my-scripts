@@ -44,9 +44,13 @@ const LogsContainer = ({ hotkeyManager, logManager, skipProfiles }) => {
     return result
   }
 
-  hotkeyManager.addHotkey('ctrl+shift+c', () => {
-    logManager.log(randomString(10, 50))
-  })
+  hotkeyManager.addHotkey(
+    'ctrl+shift+c',
+    () => {
+      logManager.log(randomString(10, 50))
+    },
+    { repeatable: true },
+  )
   return logsContainer
 }
 

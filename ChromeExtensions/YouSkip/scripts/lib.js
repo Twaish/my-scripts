@@ -4,20 +4,23 @@ class HotkeyManager {
     window.addEventListener('keydown', this.handleKeydown)
   }
   handleKeydown = (e) => {
-    if (e.repeat) return
     const keys = []
     if (e.ctrlKey) keys.push('ctrl')
     if (e.shiftKey) keys.push('shift')
     if (e.altKey) keys.push('alt')
     keys.push(e.key.toLowerCase())
     const hotkey = keys.sort().join('+')
-    const callback = this.hotkeys[hotkey]
-    if (callback) {
-      e.preventDefault()
-      callback(e)
-    }
+
+    const entry = this.hotkeys[hotkey]
+    if (!entry) return
+
+    const { callback, options } = entry
+    if (e.repeat && !options.repeatable) return
+
+    e.preventDefault()
+    callback(e)
   }
-  addHotkey(hotkey, callback) {
+  addHotkey(hotkey, callback, options = { repeatable: false }) {
     const keys = hotkey
       .toLowerCase()
       .split('+')
@@ -27,7 +30,7 @@ class HotkeyManager {
     if (this.hotkeys[keys]) {
       throw new Error(`Hotkey ${hotkey} already exists`)
     }
-    this.hotkeys[keys] = callback
+    this.hotkeys[keys] = { callback, options }
   }
 }
 class SkipManager {
@@ -43,7 +46,7 @@ class SkipManager {
       const profile = this.skipProfiles[profileName]
       if (!profile.hotkey) continue
 
-      hotkeyManager.addHotkey(profile.hotkey, () => this.skip(profileName))
+      hotkeyManager.addHotkey(profile.hotkey, () => this.skip(profileName), { ...profile })
       this.emit('attachHotkey', profile)
     }
   }
