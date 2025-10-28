@@ -44,6 +44,24 @@ skipManager.on('skip', (profile) => {
   logManager.log(profile.actionText)
 })
 skipManager.attachProfileHotkeys(hotkeyManager)
+audioManager.on('masterVolumeChanged', (volume) => {
+  logManager.log(`Master Volume: ${volume * 100}%`)
+})
+
+hotkeyManager.addHotkey(
+  'ctrl+shift+arrowup',
+  () => {
+    audioManager.setMasterVolume(audioManager.masterVolume + 0.1)
+  },
+  { repeatable: true },
+)
+hotkeyManager.addHotkey(
+  'ctrl+shift+arrowdown',
+  () => {
+    audioManager.setMasterVolume(audioManager.masterVolume - 0.1)
+  },
+  { repeatable: true },
+)
 
 const LogsContainer = ({ hotkeyManager, logManager }) => {
   const logsContainer = html('.ytskip-logs')

@@ -25,7 +25,6 @@ class HotkeyManager {
     if (e.altKey) keys.push('alt')
     keys.push(e.key.toLowerCase())
     const hotkey = keys.sort().join('+')
-
     const entry = this.hotkeys[hotkey]
     if (!entry) return
 
@@ -158,15 +157,25 @@ class LogManager extends Subject {
     }, lifetime)
   }
 }
-class AudioManager {
-  constructor(soundProfiles) {
+class AudioManager extends Subject {
+  constructor(soundProfiles, masterVolume = 1.0) {
+    super()
     this.soundProfiles = soundProfiles
+    this.masterVolume = masterVolume
   }
   play(sound, options = {}) {
     const { volume = 0.5 } = options
+
     const soundPath = this.soundProfiles[sound]
     const audio = new Audio(soundPath)
-    audio.volume = volume
+    audio.volume = this.masterVolume * volume
     audio.play().catch(console.warn)
+  }
+  setMasterVolume(volume) {
+    const clamped = Math.min(Math.max(volume, 0), 1)
+    const rounded = Math.round(clamped * 10) / 10
+    if (this.masterVolume === rounded) return
+    this.masterVolume = rounded
+    this.emit('masterVolumeChanged', rounded)
   }
 }
