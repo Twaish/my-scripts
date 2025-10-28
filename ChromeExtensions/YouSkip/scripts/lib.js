@@ -1,3 +1,18 @@
+class Subject {
+  observers = {}
+  on(eventName, callback) {
+    this.observers[eventName] ??= []
+    this.observers[eventName].push(callback)
+  }
+  off(eventName, callback) {
+    if (!this.observers[eventName]) return
+    const index = this.observers[eventName].indexOf(callback)
+    this.observers[eventName].splice(index, 1)
+  }
+  emit(eventName, ...args) {
+    this.observers[eventName]?.forEach((callback) => callback(...args))
+  }
+}
 class HotkeyManager {
   constructor() {
     this.hotkeys = {}
@@ -33,11 +48,11 @@ class HotkeyManager {
     this.hotkeys[keys] = { callback, options }
   }
 }
-class SkipManager {
-  constructor({ skipProfiles = {} }) {
+class SkipManager extends Subject {
+  constructor(skipProfiles = {}) {
+    super()
     this.skipProfiles = skipProfiles
     this.buttonObserver = null
-    this.observers = {}
     this.attachProfileHotkeys()
   }
   attachProfileHotkeys(hotkeyManager) {
@@ -49,18 +64,6 @@ class SkipManager {
       hotkeyManager.addHotkey(profile.hotkey, () => this.skip(profileName), { ...profile })
       this.emit('attachHotkey', profile)
     }
-  }
-  on(eventName, callback) {
-    this.observers[eventName] ??= []
-    this.observers[eventName].push(callback)
-  }
-  off(eventName, callback) {
-    if (!this.observers[eventName]) return
-    const index = this.observers[eventName].indexOf(callback)
-    this.observers[eventName].splice(index, 1)
-  }
-  emit(eventName, ...args) {
-    this.observers[eventName]?.forEach((callback) => callback(...args))
   }
   get video() {
     return document.querySelector('.video-stream.html5-main-video')
@@ -123,7 +126,7 @@ class SkipManager {
     this.clickSkipButton()
   }
 }
-class LogManager {
+class LogManager extends Subject {
   queue = []
   setContainer(container) {
     this.logsContainer = container
@@ -135,9 +138,11 @@ class LogManager {
 
   log(message, { lifetime = 2000, animationTime = 150 } = {}) {
     const log = html('log.in', [message])
+    const options = { lifetime, animationTime }
+    this.emit('log', message, options)
 
     if (!this.logsContainer) {
-      this.queue.push([message, { lifetime, animationTime }])
+      this.queue.push([message, options])
       return
     }
 
@@ -145,9 +150,23 @@ class LogManager {
 
     setTimeout(() => {
       log.classList.add('out')
+      this.emit('logExpire', message, options)
+
       setTimeout(() => {
         this.logsContainer.removeChild(log)
       }, animationTime)
     }, lifetime)
+  }
+}
+class AudioManager {
+  constructor(soundProfiles) {
+    this.soundProfiles = soundProfiles
+  }
+  play(sound, options = {}) {
+    const { volume = 0.5 } = options
+    const soundPath = this.soundProfiles[sound]
+    const audio = new Audio(soundPath)
+    audio.volume = volume
+    audio.play().catch(console.warn)
   }
 }

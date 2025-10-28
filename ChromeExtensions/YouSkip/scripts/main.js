@@ -20,25 +20,32 @@ const skipProfiles = {
     },
   },
 }
-function playSkipSound() {
-  window.chrome.runtime ??= { getURL: (path) => path } // For testing
-  const audio = new Audio(chrome.runtime.getURL('assets/pop.mp3'))
-  audio.volume = 0.5
-  audio.play().catch((err) => console.warn('Failed to play sound:', err))
+window.chrome.runtime ??= { getURL: (path) => path } // For testing
+const soundProfiles = {
+  pop: chrome.runtime.getURL('assets/pop.mp3'),
+  whoosh: chrome.runtime.getURL('assets/whoosh.mp3'),
 }
-const logManager = new LogManager()
+
 const hotkeyManager = new HotkeyManager()
-const skipManager = new SkipManager({ skipProfiles })
+const audioManager = new AudioManager(soundProfiles)
+const skipManager = new SkipManager(skipProfiles)
+const logManager = new LogManager()
+
+logManager.on('log', () => {
+  audioManager.play('pop')
+})
+logManager.on('logExpire', () => {
+  audioManager.play('whoosh')
+})
 skipManager.on('attachHotkey', (profile) => {
   logManager.log(profile.description, { lifetime: 4000 })
 })
 skipManager.on('skip', (profile) => {
   logManager.log(profile.actionText)
-  playSkipSound()
 })
 skipManager.attachProfileHotkeys(hotkeyManager)
 
-const LogsContainer = ({ hotkeyManager, logManager, skipProfiles }) => {
+const LogsContainer = ({ hotkeyManager, logManager }) => {
   const logsContainer = html('.ytskip-logs')
 
   function randomString(minLength = 5, maxLength = 25) {
@@ -55,13 +62,12 @@ const LogsContainer = ({ hotkeyManager, logManager, skipProfiles }) => {
     'ctrl+shift+c',
     () => {
       logManager.log(randomString(10, 50))
-      playSkipSound()
     },
     { repeatable: true },
   )
   return logsContainer
 }
 
-const logsContainer = LogsContainer({ hotkeyManager, logManager, skipProfiles })
+const logsContainer = LogsContainer({ hotkeyManager, logManager })
 document.body.append(logsContainer)
 logManager.setContainer(logsContainer)

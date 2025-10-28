@@ -6,7 +6,7 @@
   "permissions": ["scripting", "activeTab"],
   "web_accessible_resources": [
     {
-      "resources": ["assets/pop.mp3"],
+      "resources": ["assets/pop.mp3", "assets/whoosh.mp3"],
       "matches": ["<all_urls>"]
     }
   ],
