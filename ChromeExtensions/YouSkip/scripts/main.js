@@ -1,47 +1,91 @@
 const skipProfiles = {
-  full: { duration: 9e5, hotkey: 'ctrl+shift+alt+s' }, // ~10.42 days
-  '5s': { timeToSkip: 5, hotkey: 'ctrl+shift+s' },
+  full: {
+    duration: 9e5, // ~10.42 days
+    hotkey: 'ctrl+shift+alt+s',
+    get description() {
+      return `Skip full video (${this.hotkey})`
+    },
+    get actionText() {
+      return `Skipped full video`
+    },
+  },
+  '5s': {
+    timeToSkip: 5,
+    hotkey: 'ctrl+shift+s',
+    get description() {
+      return `Skip 5 seconds (${this.hotkey})`
+    },
+    get actionText() {
+      return `Skipped 5 seconds`
+    },
+  },
 }
+window.chrome.runtime ??= { getURL: (path) => path } // For testing
+const soundProfiles = {
+  pop: chrome.runtime.getURL('assets/pop.mp3'),
+  whoosh: chrome.runtime.getURL('assets/whoosh.mp3'),
+}
+
 const hotkeyManager = new HotkeyManager()
-const skipManager = new SkipManager({ hotkeyManager, skipProfiles })
-const dragManager = new DragManager()
+const audioManager = new AudioManager(soundProfiles)
+const skipManager = new SkipManager(skipProfiles)
+const logManager = new LogManager()
 
-const Button = ({ text = '', icon = '', ...args }) => {
-  return html('button', {
-    ...args,
-    html: icon + text,
-  })
-}
+logManager.on('log', () => {
+  audioManager.play('pop')
+})
+logManager.on('logExpire', () => {
+  audioManager.play('whoosh')
+})
+skipManager.on('attachHotkey', (profile) => {
+  logManager.log(profile.description, { lifetime: 4000 })
+})
+skipManager.on('skip', (profile) => {
+  logManager.log(profile.actionText)
+})
+skipManager.attachProfileHotkeys(hotkeyManager)
+audioManager.on('masterVolumeChanged', (volume) => {
+  logManager.log(`Master Volume: ${volume * 100}%`)
+})
 
-const Container = ({ skipManager, dragManager }) => {
-  const grip = html('.grip', {
-    html: icons.GRIP,
-  })
-  const container = html('.ytskip-container', [
-    grip,
-    Button({
-      text: 'FULL',
-      icon: icons.SKIP,
-      title: `Skip full video (${skipProfiles['full'].hotkey})`,
-      onclick: () => skipManager.skip('full'),
-    }),
-    Button({
-      text: '5s',
-      icon: icons.TIMER,
-      title: `Skip 5 seconds (${skipProfiles['5s'].hotkey})`,
-      onclick: () => skipManager.skip('5s'),
-    }),
-  ])
+hotkeyManager.addHotkey(
+  'ctrl+shift+arrowup',
+  () => {
+    audioManager.setMasterVolume(audioManager.masterVolume + 0.1)
+  },
+  { repeatable: true },
+)
+hotkeyManager.addHotkey(
+  'ctrl+shift+arrowdown',
+  () => {
+    audioManager.setMasterVolume(audioManager.masterVolume - 0.1)
+  },
+  { repeatable: true },
+)
 
-  dragManager.attach(grip, container)
+const LogsContainer = ({ hotkeyManager, logManager }) => {
+  const logsContainer = html('.ytskip-logs')
 
-  const offset = 250
-
-  document.body.onmousemove = (e) => {
-    const isWithinOffset = e.clientY > window.screen.height - offset
-    container.classList.toggle('visible', isWithinOffset)
+  function randomString(minLength = 5, maxLength = 25) {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    const length = Math.floor(Math.random() * (maxLength - minLength + 1)) + minLength
+    let result = ''
+    for (let i = 0; i < length; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length))
+    }
+    return result
   }
 
-  return container
+  hotkeyManager.addHotkey(
+    'ctrl+shift+c',
+    () => {
+      logManager.log(randomString(10, 50))
+    },
+    { repeatable: true },
+  )
+  return logsContainer
 }
-document.body.append(Container({ skipManager, dragManager }))
+
+const logsContainer = LogsContainer({ hotkeyManager, logManager })
+document.body.append(logsContainer)
+logManager.setContainer(logsContainer)

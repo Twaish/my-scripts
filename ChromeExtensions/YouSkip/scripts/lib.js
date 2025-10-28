@@ -1,23 +1,40 @@
+class Subject {
+  observers = {}
+  on(eventName, callback) {
+    this.observers[eventName] ??= []
+    this.observers[eventName].push(callback)
+  }
+  off(eventName, callback) {
+    if (!this.observers[eventName]) return
+    const index = this.observers[eventName].indexOf(callback)
+    this.observers[eventName].splice(index, 1)
+  }
+  emit(eventName, ...args) {
+    this.observers[eventName]?.forEach((callback) => callback(...args))
+  }
+}
 class HotkeyManager {
   constructor() {
     this.hotkeys = {}
     window.addEventListener('keydown', this.handleKeydown)
   }
   handleKeydown = (e) => {
-    if (e.repeat) return
     const keys = []
     if (e.ctrlKey) keys.push('ctrl')
     if (e.shiftKey) keys.push('shift')
     if (e.altKey) keys.push('alt')
     keys.push(e.key.toLowerCase())
     const hotkey = keys.sort().join('+')
-    const callback = this.hotkeys[hotkey]
-    if (callback) {
-      e.preventDefault()
-      callback(e)
-    }
+    const entry = this.hotkeys[hotkey]
+    if (!entry) return
+
+    const { callback, options } = entry
+    if (e.repeat && !options.repeatable) return
+
+    e.preventDefault()
+    callback(e)
   }
-  addHotkey(hotkey, callback) {
+  addHotkey(hotkey, callback, options = { repeatable: false }) {
     const keys = hotkey
       .toLowerCase()
       .split('+')
@@ -27,23 +44,24 @@ class HotkeyManager {
     if (this.hotkeys[keys]) {
       throw new Error(`Hotkey ${hotkey} already exists`)
     }
-    this.hotkeys[keys] = callback
+    this.hotkeys[keys] = { callback, options }
   }
 }
-class SkipManager {
-  constructor({ hotkeyManager, skipProfiles = {} }) {
-    this.hotkeyManager = hotkeyManager
+class SkipManager extends Subject {
+  constructor(skipProfiles = {}) {
+    super()
     this.skipProfiles = skipProfiles
     this.buttonObserver = null
     this.attachProfileHotkeys()
   }
-  attachProfileHotkeys() {
-    if (!this.hotkeyManager) return
+  attachProfileHotkeys(hotkeyManager) {
+    if (!hotkeyManager) return
     for (const profileName in this.skipProfiles) {
       const profile = this.skipProfiles[profileName]
       if (!profile.hotkey) continue
 
-      this.hotkeyManager.addHotkey(profile.hotkey, () => this.skip(profileName))
+      hotkeyManager.addHotkey(profile.hotkey, () => this.skip(profileName), { ...profile })
+      this.emit('attachHotkey', profile)
     }
   }
   get video() {
@@ -97,6 +115,7 @@ class SkipManager {
   skip(profileName) {
     const profile = this.skipProfiles[profileName]
     if (!profile) throw new Error(`Skip profile ${profileName} not found`)
+    this.emit('skip', profile)
     if (profile.duration) {
       this.setVideoDuration(profile.duration)
     }
@@ -106,81 +125,57 @@ class SkipManager {
     this.clickSkipButton()
   }
 }
-
-class DragManager {
-  constructor() {
-    this.dragged = false
-    this.offset = { x: 0, y: 0 }
-    this.rect = {}
-    this.borderMargin = 20
-
-    document.addEventListener('mousemove', this.onMouseMove)
-    document.addEventListener('mouseup', this.onMouseUp)
+class LogManager extends Subject {
+  queue = []
+  setContainer(container) {
+    this.logsContainer = container
+    this.queue.forEach((msg) => {
+      this.log(...msg)
+    })
+    this.queue = []
   }
 
-  attach(gripElement, containerElement) {
-    if (!gripElement || !containerElement) {
-      throw new Error('Missing grip or container element to attach')
+  log(message, { lifetime = 2000, animationTime = 150 } = {}) {
+    const log = html('log.in', [message])
+    const options = { lifetime, animationTime }
+    this.emit('log', message, options)
+
+    if (!this.logsContainer) {
+      this.queue.push([message, options])
+      return
     }
 
-    gripElement.addEventListener('mousedown', (e) => {
-      e.preventDefault()
-      this.dragged = containerElement
+    this.logsContainer.prepend(log)
 
-      const rect = containerElement.getBoundingClientRect()
-      this.rect = rect
-      this.offset.x = e.clientX - rect.left
-      this.offset.y = e.clientY - rect.top
-    })
+    setTimeout(() => {
+      log.classList.add('out')
+      this.emit('logExpire', message, options)
 
-    const rect = this.getRenderedRect(containerElement)
-    const position = this.ensurePositionWithinWindow(rect)
-    this.setPosition(containerElement, position)
+      setTimeout(() => {
+        this.logsContainer.removeChild(log)
+      }, animationTime)
+    }, lifetime)
   }
-
-  getRenderedRect(element) {
-    const clone = element.cloneNode(true)
-    document.body.append(clone)
-    const rect = clone.getBoundingClientRect()
-    clone.remove()
-    return rect
+}
+class AudioManager extends Subject {
+  constructor(soundProfiles, masterVolume = 1.0) {
+    super()
+    this.soundProfiles = soundProfiles
+    this.masterVolume = masterVolume
   }
+  play(sound, options = {}) {
+    const { volume = 0.5 } = options
 
-  setPosition(element, { x, y }) {
-    Object.assign(element.style, {
-      left: `${x}px`,
-      top: `${y}px`,
-      transition: 'none',
-    })
+    const soundPath = this.soundProfiles[sound]
+    const audio = new Audio(soundPath)
+    audio.volume = this.masterVolume * volume
+    audio.play().catch(console.warn)
   }
-
-  ensurePositionWithinWindow({ x, y, width, height }) {
-    const maxLeft = window.innerWidth - width - this.borderMargin
-    const maxTop = window.innerHeight - height - this.borderMargin
-
-    x = x < this.borderMargin ? this.borderMargin : x > maxLeft ? maxLeft : x
-    y = y < this.borderMargin ? this.borderMargin : y > maxTop ? maxTop : y
-
-    return { x, y }
-  }
-
-  onMouseMove = (e) => {
-    if (!this.dragged) return
-    e.preventDefault()
-
-    const position = this.ensurePositionWithinWindow({
-      x: e.clientX - this.offset.x,
-      y: e.clientY - this.offset.y,
-      width: this.rect.width,
-      height: this.rect.height,
-    })
-    this.setPosition(this.dragged, position)
-  }
-
-  onMouseUp = () => {
-    if (this.dragged) {
-      this.dragged.style.removeProperty('transition')
-    }
-    this.dragged = null
+  setMasterVolume(volume) {
+    const clamped = Math.min(Math.max(volume, 0), 1)
+    const rounded = Math.round(clamped * 10) / 10
+    if (this.masterVolume === rounded) return
+    this.masterVolume = rounded
+    this.emit('masterVolumeChanged', rounded)
   }
 }

@@ -4,10 +4,16 @@
   "version": "1.0.0",
   "manifest_version": 3,
   "permissions": ["scripting", "activeTab"],
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/pop.mp3", "assets/whoosh.mp3"],
+      "matches": ["<all_urls>"]
+    }
+  ],
   "content_scripts": [
     {
       "matches": ["*://www.youtube.com/*"],
-      "js": ["scripts/html.js", "scripts/icons.js", "scripts/lib.js", "scripts/main.js"],
+      "js": ["scripts/html.js", "scripts/lib.js", "scripts/main.js"],
       "css": ["style.css"],
       "run_at": "document_end"
     }
