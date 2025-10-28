@@ -20,6 +20,12 @@ const skipProfiles = {
     },
   },
 }
+function playSkipSound() {
+  window.chrome.runtime ??= { getURL: (path) => path } // For testing
+  const audio = new Audio(chrome.runtime.getURL('assets/pop.mp3'))
+  audio.volume = 0.5
+  audio.play().catch((err) => console.warn('Failed to play sound:', err))
+}
 const logManager = new LogManager()
 const hotkeyManager = new HotkeyManager()
 const skipManager = new SkipManager({ skipProfiles })
@@ -28,6 +34,7 @@ skipManager.on('attachHotkey', (profile) => {
 })
 skipManager.on('skip', (profile) => {
   logManager.log(profile.actionText)
+  playSkipSound()
 })
 skipManager.attachProfileHotkeys(hotkeyManager)
 
@@ -48,6 +55,7 @@ const LogsContainer = ({ hotkeyManager, logManager, skipProfiles }) => {
     'ctrl+shift+c',
     () => {
       logManager.log(randomString(10, 50))
+      playSkipSound()
     },
     { repeatable: true },
   )
