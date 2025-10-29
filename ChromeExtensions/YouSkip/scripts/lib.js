@@ -161,13 +161,14 @@ class Store {
   async loadSettings(namespace, instance) {
     const data = await chrome.storage.local.get(namespace)
     if (data && typeof data === 'object') {
-      Object.assign(instance, data)
+      Object.assign(instance, data[namespace])
     }
   }
   async set(namespace, property, value) {
     const data = (await chrome.storage.local.get(namespace)) ?? {}
-    data[property] = value
-    await chrome.storage.local.set({ [namespace]: data })
+    data[namespace] ??= {}
+    data[namespace][property] = value
+    await chrome.storage.local.set({ [namespace]: data[namespace] })
   }
 }
 class AudioManager extends Subject {
