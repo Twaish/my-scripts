@@ -3,7 +3,7 @@
   "description": "Skip full video or 5 seconds to push skip",
   "version": "1.0.0",
   "manifest_version": 3,
-  "permissions": ["scripting", "activeTab"],
+  "permissions": ["scripting", "storage"],
   "web_accessible_resources": [
     {
       "resources": ["assets/pop.mp3", "assets/whoosh.mp3"],
