@@ -13,7 +13,7 @@ window.chrome.storage ??= {
         const value = parseFloat(entry.value)
         return isNaN(value) ? 0 : value
       }
-      return entry?.value
+      return { [key]: entry?.value }
     },
   },
 }
