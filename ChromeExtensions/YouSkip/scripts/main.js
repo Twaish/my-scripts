@@ -20,72 +20,78 @@ const skipProfiles = {
     },
   },
 }
-window.chrome.runtime ??= { getURL: (path) => path } // For testing
 const soundProfiles = {
   pop: chrome.runtime.getURL('assets/pop.mp3'),
   whoosh: chrome.runtime.getURL('assets/whoosh.mp3'),
 }
 
-const hotkeyManager = new HotkeyManager()
-const audioManager = new AudioManager(soundProfiles)
-const skipManager = new SkipManager(skipProfiles)
-const logManager = new LogManager()
+async function main() {
+  const hotkeyManager = new HotkeyManager()
+  const audioManager = new AudioManager(soundProfiles)
+  const skipManager = new SkipManager(skipProfiles)
+  const logManager = new LogManager()
+  const store = new Store()
 
-logManager.on('log', () => {
-  audioManager.play('pop')
-})
-logManager.on('logExpire', () => {
-  audioManager.play('whoosh')
-})
-skipManager.on('attachHotkey', (profile) => {
-  logManager.log(profile.description, { lifetime: 4000 })
-})
-skipManager.on('skip', (profile) => {
-  logManager.log(profile.actionText)
-})
-skipManager.attachProfileHotkeys(hotkeyManager)
-audioManager.on('masterVolumeChanged', (volume) => {
-  logManager.log(`Master Volume: ${volume * 100}%`)
-})
+  await store.loadSettings('AudioManager', audioManager)
 
-hotkeyManager.addHotkey(
-  'ctrl+shift+arrowup',
-  () => {
-    audioManager.setMasterVolume(audioManager.masterVolume + 0.1)
-  },
-  { repeatable: true },
-)
-hotkeyManager.addHotkey(
-  'ctrl+shift+arrowdown',
-  () => {
-    audioManager.setMasterVolume(audioManager.masterVolume - 0.1)
-  },
-  { repeatable: true },
-)
-
-const LogsContainer = ({ hotkeyManager, logManager }) => {
-  const logsContainer = html('.ytskip-logs')
-
-  function randomString(minLength = 5, maxLength = 25) {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-    const length = Math.floor(Math.random() * (maxLength - minLength + 1)) + minLength
-    let result = ''
-    for (let i = 0; i < length; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length))
-    }
-    return result
-  }
+  audioManager.on('masterVolumeChanged', (volume) => {
+    logManager.log(`Master Volume: ${volume * 100}%`)
+    store.set('AudioManager', 'masterVolume', volume)
+  })
+  logManager.on('log', () => {
+    audioManager.play('pop')
+  })
+  logManager.on('logExpire', () => {
+    audioManager.play('whoosh')
+  })
+  skipManager.on('attachHotkey', (profile) => {
+    logManager.log(profile.description, { lifetime: 4000 })
+  })
+  skipManager.on('skip', (profile) => {
+    logManager.log(profile.actionText)
+  })
+  skipManager.attachProfileHotkeys(hotkeyManager)
 
   hotkeyManager.addHotkey(
-    'ctrl+shift+c',
+    'ctrl+shift+arrowup',
     () => {
-      logManager.log(randomString(10, 50))
+      audioManager.setMasterVolume(audioManager.masterVolume + 0.1)
     },
     { repeatable: true },
   )
-  return logsContainer
-}
+  hotkeyManager.addHotkey(
+    'ctrl+shift+arrowdown',
+    () => {
+      audioManager.setMasterVolume(audioManager.masterVolume - 0.1)
+    },
+    { repeatable: true },
+  )
 
-const logsContainer = LogsContainer({ hotkeyManager, logManager })
-document.body.append(logsContainer)
-logManager.setContainer(logsContainer)
+  const LogsContainer = ({ hotkeyManager, logManager }) => {
+    const logsContainer = html('.ytskip-logs')
+
+    function randomString(minLength = 5, maxLength = 25) {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+      const length = Math.floor(Math.random() * (maxLength - minLength + 1)) + minLength
+      let result = ''
+      for (let i = 0; i < length; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length))
+      }
+      return result
+    }
+
+    hotkeyManager.addHotkey(
+      'ctrl+shift+c',
+      () => {
+        logManager.log(randomString(10, 50))
+      },
+      { repeatable: true },
+    )
+    return logsContainer
+  }
+
+  const logsContainer = LogsContainer({ hotkeyManager, logManager })
+  document.body.append(logsContainer)
+  logManager.setContainer(logsContainer)
+}
+main()
