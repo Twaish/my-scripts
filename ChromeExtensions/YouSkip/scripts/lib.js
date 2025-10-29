@@ -157,6 +157,19 @@ class LogManager extends Subject {
     }, lifetime)
   }
 }
+class Store {
+  async loadSettings(namespace, instance) {
+    const data = await chrome.storage.local.get(namespace)
+    if (data && typeof data === 'object') {
+      Object.assign(instance, data)
+    }
+  }
+  async set(namespace, property, value) {
+    const data = (await chrome.storage.local.get(namespace)) ?? {}
+    data[property] = value
+    await chrome.storage.local.set({ [namespace]: data })
+  }
+}
 class AudioManager extends Subject {
   constructor(soundProfiles, masterVolume = 1.0) {
     super()
@@ -165,8 +178,9 @@ class AudioManager extends Subject {
   }
   play(sound, options = {}) {
     const { volume = 0.5 } = options
-
     const soundPath = this.soundProfiles[sound]
+    if (!soundPath) return
+
     const audio = new Audio(soundPath)
     audio.volume = this.masterVolume * volume
     audio.play().catch(console.warn)
@@ -175,6 +189,7 @@ class AudioManager extends Subject {
     const clamped = Math.min(Math.max(volume, 0), 1)
     const rounded = Math.round(clamped * 10) / 10
     if (this.masterVolume === rounded) return
+
     this.masterVolume = rounded
     this.emit('masterVolumeChanged', rounded)
   }
