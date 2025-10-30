@@ -16,6 +16,10 @@ def fetch_free_epic_games():
   now = datetime.now(timezone.utc)
 
   for e in elements:
+    price_info = e.get("price", {}).get("totalPrice", {})
+    if price_info.get("discountPrice", 1) != 0:
+        continue
+
     promotions = e.get("promotions") or {}
     promo_groups = promotions.get("promotionalOffers", []) or []
 
@@ -30,8 +34,16 @@ def fetch_free_epic_games():
     if not active_windows:
       continue
 
-    mappings = e.get("catalogNs", {}).get("mappings", [])
+    mappings = e.get("catalogNs", {}).get("mappings") or []
+    if not mappings and e.get("offerMappings"):
+        mappings = e["offerMappings"]
+
     slugs = [m.get("pageSlug") for m in mappings if m.get("pageSlug")]
+
+    if not slugs:
+        for k in ("urlSlug", "productSlug"):
+            if e.get(k):
+                slugs.append(e[k])
 
     results.append({
       "title": e.get("title"),
