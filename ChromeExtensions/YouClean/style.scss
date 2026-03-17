@@ -1,0 +1,149 @@
+@mixin frosted($bg: rgba(40, 40, 40, 0.6), $blur: 35px) {
+  background-color: $bg !important;
+  backdrop-filter: blur($blur) !important;
+}
+
+@mixin hidden() {
+  display: none !important;
+}
+
+/* ========= FEATURES/REGULAR STYLINGS ========= */
+$notification-button: '#buttons > ytd-notification-topbar-button-renderer';
+$search-field-button: '#center > yt-searchbox > div.ytSearchboxComponentInputContainer > button';
+$voice-search-button: '#voice-search-button';
+$create-button: '#buttons > ytd-button-renderer > yt-button-shape > button';
+
+$comment-action-menu: '#action-menu';
+
+$yt-grid-renderer: '#primary > ytd-rich-grid-renderer';
+$home-page-display: '#page-manager', "ytd-browse[page-subtype='home'] #primary";
+
+$video-page-top-bar: '#background';
+$home-page-top-bar: '#frosted-glass';
+
+/* Hide top bar background on home page */
+#{$home-page-top-bar} {
+  height: 56px !important;
+  backdrop-filter: none !important;
+  background: none !important;
+}
+/* Frost notification button in top bar */
+#{$notification-button} {
+  @include frosted;
+  border-radius: 100% !important;
+}
+/* Frost top bar buttons on video page */
+#{$search-field-button,
+$voice-search-button,
+$create-button} {
+  @include frosted;
+}
+/* Hide top bar background on video page */
+#{$video-page-top-bar} {
+  @include hidden;
+}
+/* Expand main content to full width */
+#{$home-page-display} {
+  margin-left: 0 !important;
+  width: 100% !important;
+}
+/* Add more videos per row to home page */
+#{$yt-grid-renderer} {
+  --ytd-rich-grid-items-per-row: 4 !important;
+}
+/* Make action menu take up box space to allow all text of comment to be visible */
+#{$comment-action-menu} {
+  position: relative !important;
+}
+
+/* ========= HIDE LOADING VIDEO SKELETONS ========= */
+$home-page-load-new-videos-indicator: '#contents > ytd-continuation-item-renderer';
+/* Hide video skeletons when loading new videos on home page */
+#{$home-page-load-new-videos-indicator} {
+  opacity: 0 !important; /* Keeps loading functionality*/
+}
+
+/* ========= HIDE SIDE BAR ========= */
+$sidebar: 'ytd-guide-renderer', '#guide', 'tp-yt-app-drawer';
+$mini-sidebar:
+  '#guide-button', '#content > ytd-mini-guide-renderer',
+  '#sections > ytd-guide-section-renderer:nth-child(1)';
+/* Hide side bar and mini side bar */
+#{$sidebar,
+$mini-sidebar} {
+  @include hidden;
+}
+
+/* ========= HIDE CATEGORY CHIPS ========= */
+$home-page-categories: '#header:not(:has(ytd-comments-header-renderer))';
+$video-page-categories: '#items > yt-related-chip-cloud-renderer';
+/* Hide category chips on home and video page*/
+#{$home-page-categories,
+$video-page-categories} {
+  @include hidden;
+}
+
+/* ========= HIDE SHORTS ========= */
+$search-results-shorts: 'ytd-reel-shelf-renderer';
+$home-page-shorts:
+  'ytd-rich-section-renderer:has(ytd-rich-shelf-renderer[is-shorts])',
+  'ytd-rich-shelf-renderer[is-shorts]', 'ytd-reel-shelf-renderer';
+/* Hide shorts shelves on homepage and search results*/
+#{$home-page-shorts,
+$search-results-shorts} {
+  @include hidden;
+}
+
+/* ========= HIDE ADS ========= */
+$home-page-ads:
+  '#contents > ytd-rich-item-renderer:has(ytd-in-feed-ad-layout-renderer)',
+  '#content > ytd-ad-slot-renderer';
+$video-page-ads: '#player-ads';
+$video-page-first-video: '#contents > yt-lockup-view-model:nth-child(1)';
+/* Hide ads from home page and video page */
+#{$home-page-ads,
+$video-page-ads} {
+  @include hidden;
+}
+/* Remove extra margin that was for ad space on first video entry */
+#{$video-page-first-video} {
+  margin-top: 0;
+}
+
+/* ========= HIDE MERCH ========= */
+$video-merch: '#below > ytd-merch-shelf-renderer';
+/* Hide merch products */
+#{$video-merch} {
+  @include hidden;
+}
+
+/* ========= HIDE VIDEO ACTION BUTTONS ========= */
+$clip-button: '#flexible-item-buttons > yt-button-view-model:nth-child(2)';
+$download-button: '#flexible-item-buttons > ytd-download-button-renderer';
+$menu-button: '#button-shape';
+$sponsor-button: '#sponsor-button';
+$share-button: '#top-level-buttons-computed > yt-button-view-model';
+/* Hide buttons */
+#{$clip-button,
+$download-button,
+$menu-button,
+$sponsor-button,
+$share-button} {
+  @include hidden;
+}
+
+/* ========= HIDE VIDEO DESCRIPTION CONTENT ========= */
+$social-links: '#social-links';
+$playlists: '#items > ytd-video-description-infocards-section-renderer';
+$played-game: '#items > yt-video-attributes-section-view-model';
+$video-sections: '#items > ytd-horizontal-card-list-renderer';
+$how-its-made: '#items > how-this-was-made-section-view-model';
+$show-transcription: '#items > ytd-video-description-transcript-section-renderer';
+/* Hide video description content */
+#{$social-links,
+$playlists,
+$played-game,
+$video-sections,
+$how-its-made} {
+  @include hidden;
+}

@@ -1,0 +1,94 @@
+/* ========= FEATURES/REGULAR STYLINGS ========= */
+/* Hide top bar background on home page */
+#frosted-glass {
+  height: 56px !important;
+  backdrop-filter: none !important;
+  background: none !important;
+}
+
+/* Frost notification button in top bar */
+#buttons > ytd-notification-topbar-button-renderer {
+  background-color: rgba(40, 40, 40, 0.6) !important;
+  backdrop-filter: blur(35px) !important;
+  border-radius: 100% !important;
+}
+
+/* Frost top bar buttons on video page */
+#center > yt-searchbox > div.ytSearchboxComponentInputContainer > button, #voice-search-button, #buttons > ytd-button-renderer > yt-button-shape > button {
+  background-color: rgba(40, 40, 40, 0.6) !important;
+  backdrop-filter: blur(35px) !important;
+}
+
+/* Hide top bar background on video page */
+#background {
+  display: none !important;
+}
+
+/* Expand main content to full width */
+#page-manager, ytd-browse[page-subtype=home] #primary {
+  margin-left: 0 !important;
+  width: 100% !important;
+}
+
+/* Add more videos per row to home page */
+#primary > ytd-rich-grid-renderer {
+  --ytd-rich-grid-items-per-row: 4 !important;
+}
+
+/* Make action menu take up box space to allow all text of comment to be visible */
+#action-menu {
+  position: relative !important;
+}
+
+/* ========= HIDE LOADING VIDEO SKELETONS ========= */
+/* Hide video skeletons when loading new videos on home page */
+#contents > ytd-continuation-item-renderer {
+  opacity: 0 !important; /* Keeps loading functionality*/
+}
+
+/* ========= HIDE SIDE BAR ========= */
+/* Hide side bar and mini side bar */
+ytd-guide-renderer, #guide, tp-yt-app-drawer, #guide-button, #content > ytd-mini-guide-renderer, #sections > ytd-guide-section-renderer:nth-child(1) {
+  display: none !important;
+}
+
+/* ========= HIDE CATEGORY CHIPS ========= */
+/* Hide category chips on home and video page*/
+#header:not(:has(ytd-comments-header-renderer)), #items > yt-related-chip-cloud-renderer {
+  display: none !important;
+}
+
+/* ========= HIDE SHORTS ========= */
+/* Hide shorts shelves on homepage and search results*/
+ytd-rich-section-renderer:has(ytd-rich-shelf-renderer[is-shorts]), ytd-rich-shelf-renderer[is-shorts], ytd-reel-shelf-renderer, ytd-reel-shelf-renderer {
+  display: none !important;
+}
+
+/* ========= HIDE ADS ========= */
+/* Hide ads from home page and video page */
+#contents > ytd-rich-item-renderer:has(ytd-in-feed-ad-layout-renderer), #content > ytd-ad-slot-renderer, #player-ads {
+  display: none !important;
+}
+
+/* Remove extra margin that was for ad space on first video entry */
+#contents > yt-lockup-view-model:nth-child(1) {
+  margin-top: 0;
+}
+
+/* ========= HIDE MERCH ========= */
+/* Hide merch products */
+#below > ytd-merch-shelf-renderer {
+  display: none !important;
+}
+
+/* ========= HIDE VIDEO ACTION BUTTONS ========= */
+/* Hide buttons */
+#flexible-item-buttons > yt-button-view-model:nth-child(2), #flexible-item-buttons > ytd-download-button-renderer, #button-shape, #sponsor-button, #top-level-buttons-computed > yt-button-view-model {
+  display: none !important;
+}
+
+/* ========= HIDE VIDEO DESCRIPTION CONTENT ========= */
+/* Hide video description content */
+#social-links, #items > ytd-video-description-infocards-section-renderer, #items > yt-video-attributes-section-view-model, #items > ytd-horizontal-card-list-renderer, #items > how-this-was-made-section-view-model {
+  display: none !important;
+}/*# sourceMappingURL=style.css.map */
