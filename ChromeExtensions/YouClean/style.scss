@@ -8,6 +8,8 @@ $features: (
   categories: true,
   video-actions: true,
   description-sections: true,
+  related-videos: false,
+  comments: false,
 );
 
 @mixin frosted($bg: rgba(40, 40, 40, 0.6), $blur: 35px) {
@@ -69,7 +71,7 @@ $home-page-shorts:
   'ytd-rich-shelf-renderer[is-shorts]', 'ytd-reel-shelf-renderer';
 
 /* ========= CATEGORY CHIPS ========= */
-$home-page-categories: '#header:not(:has(ytd-comments-header-renderer, #header-author))';
+$home-page-categories: '#header:has(ytd-feed-filter-chip-bar-renderer)';
 $video-page-categories: '#items > yt-related-chip-cloud-renderer';
 
 /* ========= LOADING ========= */
@@ -96,6 +98,13 @@ $home-page-display: '#page-manager', "ytd-browse[page-subtype='home'] #primary";
 $video-page-top-bar: '#background';
 $home-page-top-bar: '#frosted-glass';
 
+/* ========= RELATED VIDEOS ========= */
+$related-videos: '#related:has(ytd-watch-next-secondary-results-renderer)';
+$secondth-column: '#secondary';
+
+/* ========= COMMENTS ========= */
+$comments: '#comments';
+
 /* Hide top bar background on home page */
 #{$home-page-top-bar} {
   height: 56px !important;
@@ -120,9 +129,11 @@ $create-button} {
 @include hide($video-page-top-bar);
 
 /* Expand main content to full width */
-#{$home-page-display} {
-  margin-left: 0 !important;
-  width: 100% !important;
+@if map-get($features, sidebar) {
+  #{$home-page-display} {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
 }
 
 /* Add more videos per row to home page */
@@ -204,4 +215,13 @@ $playlist-alerts} {
   @each $name, $selector in $description-sections {
     @include hide($selector);
   }
+}
+
+/* Related videos */
+@if map-get($features, related-videos) {
+  @include hide($related-videos, $secondth-column);
+}
+
+@if map-get($features, comments) {
+  @include hide($comments);
 }

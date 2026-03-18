@@ -10,6 +10,8 @@
 /* ========= SIDE BAR ========= */
 /* ========= TOP BAR ACTION BUTTONS ========= */
 /* ========= FEATURES/REGULAR STYLINGS ========= */
+/* ========= RELATED VIDEOS ========= */
+/* ========= COMMENTS ========= */
 /* Hide top bar background on home page */
 #frosted-glass {
   height: 56px !important;
@@ -77,7 +79,7 @@ ytd-guide-renderer, #guide, tp-yt-app-drawer, #guide-button, #content > ytd-mini
 }
 
 /* Categories */
-#header:not(:has(ytd-comments-header-renderer, #header-author)), #items > yt-related-chip-cloud-renderer {
+#header:has(ytd-feed-filter-chip-bar-renderer), #items > yt-related-chip-cloud-renderer {
   display: none !important;
 }
 
@@ -148,4 +150,6 @@ ytd-rich-section-renderer:has(ytd-rich-shelf-renderer[is-shorts]), ytd-rich-shel
 
 #items > how-this-was-made-section-view-model {
   display: none !important;
-}/*# sourceMappingURL=style.css.map */
+}
+
+/* Related videos *//*# sourceMappingURL=style.css.map */
