@@ -1,3 +1,14 @@
+/* ========= PLAYLIST ========= */
+/* ========= VIDEO DESCRIPTION SECTIONS ========= */
+/* ========= VIDEO ACTION BUTTONS ========= */
+/* ========= VIDEO MERCH/PRODUCTS ========= */
+/* ========= ADS ========= */
+/* ========= SHORTS ========= */
+/* ========= CATEGORY CHIPS ========= */
+/* ========= LOADING ========= */
+/* Video loading skeletons */
+/* ========= SIDE BAR ========= */
+/* ========= TOP BAR ACTION BUTTONS ========= */
 /* ========= FEATURES/REGULAR STYLINGS ========= */
 /* Hide top bar background on home page */
 #frosted-glass {
@@ -6,20 +17,20 @@
   background: none !important;
 }
 
-/* Frost notification button in top bar */
+/* Notification button */
 #buttons > ytd-notification-topbar-button-renderer {
   background-color: rgba(40, 40, 40, 0.6) !important;
   backdrop-filter: blur(35px) !important;
   border-radius: 100% !important;
 }
 
-/* Frost top bar buttons on video page */
+/* Top bar buttons */
 #center > yt-searchbox > div.ytSearchboxComponentInputContainer > button, #voice-search-button, #buttons > ytd-button-renderer > yt-button-shape > button {
   background-color: rgba(40, 40, 40, 0.6) !important;
   backdrop-filter: blur(35px) !important;
 }
 
-/* Hide top bar background on video page */
+/* Hide video page top bar background */
 #background {
   display: none !important;
 }
@@ -35,60 +46,106 @@
   --ytd-rich-grid-items-per-row: 4 !important;
 }
 
-/* Make action menu take up box space to allow all text of comment to be visible */
+/* Comment layout fix
+Make action menu take up box space to allow all text of comment to be visible */
 #action-menu {
   position: relative !important;
 }
 
-/* ========= HIDE LOADING VIDEO SKELETONS ========= */
-/* Hide video skeletons when loading new videos on home page */
-#contents > ytd-continuation-item-renderer {
-  opacity: 0 !important; /* Keeps loading functionality*/
+/* Transcript spacing */
+#items > ytd-video-description-transcript-section-renderer {
+  padding: 0 !important;
 }
 
-/* ========= HIDE SIDE BAR ========= */
-/* Hide side bar and mini side bar */
+/* Loading skeletons */
+#contents > ytd-continuation-item-renderer {
+  opacity: 0 !important; /* display: none; removes loading functionality, opacity: 0; keeps it */
+}
+
+/* Playlist */
+ytd-browse[page-subtype=playlist] ytd-two-column-browse-results-renderer.ytd-browse, ytd-browse[has-page-header-sidebar] ytd-two-column-browse-results-renderer.ytd-browse, #alerts {
+  padding-left: 450px !important;
+}
+
+#page-manager > ytd-browse > ytd-playlist-header-renderer {
+  margin: 0 !important;
+}
+
+/* Side bar */
 ytd-guide-renderer, #guide, tp-yt-app-drawer, #guide-button, #content > ytd-mini-guide-renderer, #sections > ytd-guide-section-renderer:nth-child(1) {
   display: none !important;
 }
 
-/* ========= HIDE CATEGORY CHIPS ========= */
-/* Hide category chips on home and video page*/
-#header:not(:has(ytd-comments-header-renderer)), #items > yt-related-chip-cloud-renderer {
+/* Categories */
+#header:not(:has(ytd-comments-header-renderer, #header-author)), #items > yt-related-chip-cloud-renderer {
   display: none !important;
 }
 
-/* ========= HIDE SHORTS ========= */
-/* Hide shorts shelves on homepage and search results*/
+/* Shorts */
 ytd-rich-section-renderer:has(ytd-rich-shelf-renderer[is-shorts]), ytd-rich-shelf-renderer[is-shorts], ytd-reel-shelf-renderer, ytd-reel-shelf-renderer {
   display: none !important;
 }
 
-/* ========= HIDE ADS ========= */
-/* Hide ads from home page and video page */
-#contents > ytd-rich-item-renderer:has(ytd-in-feed-ad-layout-renderer), #content > ytd-ad-slot-renderer, #player-ads {
+/* Ads */
+#contents > ytd-rich-item-renderer:has(ytd-in-feed-ad-layout-renderer), #content > ytd-ad-slot-renderer, #player-ads, #panels > ytd-engagement-panel-section-list-renderer:nth-child(3), #panels > ytd-engagement-panel-section-list-renderer[target-id=engagement-panel-ads], #contents > ytd-rich-section-renderer:has(ytd-brand-video-shelf-renderer) {
   display: none !important;
 }
 
-/* Remove extra margin that was for ad space on first video entry */
 #contents > yt-lockup-view-model:nth-child(1) {
-  margin-top: 0;
+  margin-top: 0 !important;
 }
 
-/* ========= HIDE MERCH ========= */
-/* Hide merch products */
+/* Merch */
 #below > ytd-merch-shelf-renderer {
   display: none !important;
 }
 
-/* ========= HIDE VIDEO ACTION BUTTONS ========= */
-/* Hide buttons */
-#flexible-item-buttons > yt-button-view-model:nth-child(2), #flexible-item-buttons > ytd-download-button-renderer, #button-shape, #sponsor-button, #top-level-buttons-computed > yt-button-view-model {
+#description-inner > ytd-merch-shelf-renderer {
   display: none !important;
 }
 
-/* ========= HIDE VIDEO DESCRIPTION CONTENT ========= */
-/* Hide video description content */
-#social-links, #items > ytd-video-description-infocards-section-renderer, #items > yt-video-attributes-section-view-model, #items > ytd-horizontal-card-list-renderer, #items > how-this-was-made-section-view-model {
+#shopping-timely-shelf {
+  display: none !important;
+}
+
+/* Video action buttons */
+#flexible-item-buttons > yt-button-view-model:nth-child(2) {
+  display: none !important;
+}
+
+#flexible-item-buttons > ytd-download-button-renderer {
+  display: none !important;
+}
+
+#button-shape {
+  display: none !important;
+}
+
+#sponsor-button {
+  display: none !important;
+}
+
+#top-level-buttons-computed > yt-button-view-model {
+  display: none !important;
+}
+
+/* Description sections */
+#social-links {
+  display: none !important;
+}
+
+#items > ytd-video-description-infocards-section-renderer {
+  display: none !important;
+}
+
+#items > yt-video-attributes-section-view-model {
+  display: none !important;
+}
+
+#items > ytd-horizontal-card-list-renderer {
+  display: none !important;
+}
+
+#items > how-this-was-made-section-view-model {
   display: none !important;
 }/*# sourceMappingURL=style.css.map */
